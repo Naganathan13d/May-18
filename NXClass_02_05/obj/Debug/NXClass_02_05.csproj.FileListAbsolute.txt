@@ -1,0 +1,6 @@
+C:\Users\Dell\source\repos\NXClass_02_05\NXClass_02_05\bin\Debug\NXClass_02_05.dll
+C:\Users\Dell\source\repos\NXClass_02_05\NXClass_02_05\bin\Debug\NXClass_02_05.pdb
+C:\Users\Dell\source\repos\NXClass_02_05\NXClass_02_05\obj\Debug\NXClass_02_05.csproj.AssemblyReference.cache
+C:\Users\Dell\source\repos\NXClass_02_05\NXClass_02_05\obj\Debug\NXClass_02_05.csproj.CoreCompileInputs.cache
+C:\Users\Dell\source\repos\NXClass_02_05\NXClass_02_05\obj\Debug\NXClass_02_05.dll
+C:\Users\Dell\source\repos\NXClass_02_05\NXClass_02_05\obj\Debug\NXClass_02_05.pdb
