@@ -25,23 +25,9 @@ namespace NXClass_02_05
 
             Point3d origin = new Point3d(0, 0, 0);
             // Comments added 
-			
-		
 
+            Matrix3x3 matrix3X3 = workPart.WCS.CoordinateSystem.Orientation.Element;
 
-            Matrix3x3 matrix3X3 = new Matrix3x3();
-
-            matrix3X3.Xx = 0;
-            matrix3X3.Xy = 0;
-            matrix3X3.Xz = -1;
-
-            matrix3X3.Yx = 0;
-            matrix3X3.Yy = 0;
-            matrix3X3.Yz = 0;
-
-            matrix3X3.Zx = 0;
-            matrix3X3.Zy = 0;
-            matrix3X3.Zz = 1;
 
             // To Check Tomorrow  
 
