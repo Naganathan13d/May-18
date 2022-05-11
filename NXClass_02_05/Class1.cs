@@ -26,7 +26,7 @@ namespace NXClass_02_05
             Point3d origin = new Point3d(0, 0, 0);
             // Comments added 
 			
-			// New Comments added
+		
 
 
             Matrix3x3 matrix3X3 = new Matrix3x3();
