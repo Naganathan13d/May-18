@@ -13,109 +13,107 @@ namespace NXClass_02_05
     {
         public static void Main()
         {
-            Session theSession = Session.GetSession();
-            Part workPart = theSession.Parts.Work;
 
-            double width = 20;
-            double height = 40;
+            Session session = Session.GetSession();
+            Part workpart = session.Parts.Work;
 
-            Point3d p1 = new Point3d(5, 5, 0);
-            Point3d p2 = new Point3d(p1.X + width, p1.Y, p1.Z);
-            Point3d p3 = new Point3d(p1.X + (width / 2), p1.Y + height, p1.Z);
+            Sketch newsketch = null;
+            SketchInPlaceBuilder skt = workpart.Sketches.CreateSketchInPlaceBuilder2(newsketch);
+            skt.OriginOption = OriginMethod.WorkPartOrigin;
 
-            Point3d origin = new Point3d(0, 0, 0);     
+            Point3d plnpt = new Point3d(0, 0, 0);
+            Vector3d plvctr = new Vector3d(1, 0, 0);
+            Plane plane1 = workpart.Planes.CreatePlane(plnpt, plvctr, SmartObject.UpdateOption.WithinModeling);
+            skt.PlaneReference = plane1;
 
-            Matrix3x3 matrix3X3 = workPart.WCS.CoordinateSystem.Orientation.Element;
-
-            matrix3X3.Xx = 1;
-            matrix3X3.Xy = 0;
-            matrix3X3.Xz = 0;
-
-            matrix3X3.Yx = 0;
-            matrix3X3.Yy = 1;
-            matrix3X3.Yz = 0;
-
-            matrix3X3.Zx = 0;
-            matrix3X3.Zy = 0;
-            matrix3X3.Zz = 1;           
-
-            DatumPlane datumPlane = workPart.Datums.CreateFixedDatumPlane(origin, matrix3X3);
-
-            Point3d endPoint = new Point3d(1, 0, 0);
-
-            DatumAxis datumAxis = workPart.Datums.CreateFixedDatumAxis(origin, endPoint);
-
-            Line l1 = workPart.Curves.CreateLine(p1, p2);
-            Line l2 = workPart.Curves.CreateLine(p2, p3);
-            Line l3 = workPart.Curves.CreateLine(p3, p1);
-
-            Sketch sketch = null;
-            SketchInPlaceBuilder sketchInPlaceBuilder = workPart.Sketches.CreateNewSketchInPlaceBuilder(sketch);
-            sketchInPlaceBuilder.PlaneOrFace.Value = datumPlane;
-
-          
-            sketch = (Sketch)sketchInPlaceBuilder.Commit();
-            sketchInPlaceBuilder.Destroy();
-
-            sketch.Activate(Sketch.ViewReorient.True);
-
-            sketch.AddGeometry(l1, Sketch.InferConstraintsOption.InferCoincidentConstraints);
-            sketch.AddGeometry(l2, Sketch.InferConstraintsOption.InferCoincidentConstraints);
-            sketch.AddGeometry(l3, Sketch.InferConstraintsOption.InferCoincidentConstraints);
-
-            Sketch.ConstraintGeometry horizontalConstraint = new Sketch.ConstraintGeometry();
-            horizontalConstraint.Geometry = l1;
-            sketch.CreateHorizontalConstraint(horizontalConstraint);
-
-            Sketch.ConstraintGeometry verticalConstraint = new Sketch.ConstraintGeometry();
-            verticalConstraint.Geometry = l2;
-            sketch.CreateVerticalConstraint(verticalConstraint);
+            Point3d axpt = new Point3d(0, 0, 0);
+            Vector3d axvctr = new Vector3d(0, 1, 0);
+            Direction Dir1 = workpart.Directions.CreateDirection(axpt, axvctr, SmartObject.UpdateOption.WithinModeling);
+            skt.AxisReference = Dir1;
 
 
-            Sketch.DimensionGeometry dimGeo1 = new Sketch.DimensionGeometry();
-            dimGeo1.Geometry = l2;
-            dimGeo1.AssocType = Sketch.AssocType.StartPoint;
+            newsketch = (Sketch)skt.Commit();
+            newsketch.SetName("Table1");
+            newsketch.Activate(Sketch.ViewReorient.False);
 
-            Sketch.DimensionGeometry dimGeo2 = new Sketch.DimensionGeometry();
-            dimGeo2.Geometry = l2;
-            dimGeo2.AssocType = Sketch.AssocType.EndPoint;
+            Point3d pt1 = new Point3d(0, 0, 0);
+            Point3d pt2 = new Point3d(0, 0, 10);
+            Point3d pt3 = new Point3d(0, 10, 10);
+            Point3d pt4 = new Point3d(0, 10, 0);
 
-            Expression expheight = workPart.Expressions.CreateSystemExpression("newheight = 60");
+            Line l1 = workpart.Curves.CreateLine(pt1, pt2);
+            Line l2 = workpart.Curves.CreateLine(pt2, pt3);
+            Line l3 = workpart.Curves.CreateLine(pt3, pt4);
+            Line l4 = workpart.Curves.CreateLine(pt4, pt1);
 
-            Point3d dim1place = new Point3d(p2.X + 25,p1.Y + (height/2),0);
+            newsketch.AddGeometry(l1);
+            newsketch.AddGeometry(l2);
+            newsketch.AddGeometry(l3);
+            newsketch.AddGeometry(l4);
 
-            sketch.CreateDimension(Sketch.ConstraintType.VerticalDim, dimGeo1, dimGeo2, dim1place, expheight, Sketch.DimensionOption.CreateAsDriving);
+            skt.Destroy();
 
-            //Sketch.DimensionGeometry dimGeo3 = new Sketch.DimensionGeometry();
-            //dimGeo3.Geometry = l1;
-            //dimGeo3.AssocType = Sketch.AssocType.StartPoint;
+            Sketch.ConstraintGeometry vr1 = new Sketch.ConstraintGeometry();
+            vr1.Geometry = l1;
+            newsketch.CreateVerticalConstraint(vr1);
 
-            //Sketch.DimensionGeometry dimGeo4 = new Sketch.DimensionGeometry();
-            //dimGeo4.Geometry = l1;
-            //dimGeo4.AssocType = Sketch.AssocType.EndPoint;
+            Sketch.ConstraintGeometry hr1 = new Sketch.ConstraintGeometry();
+            hr1.Geometry = l2;
+            newsketch.CreateHorizontalConstraint(hr1);
 
-            //Expression expwidth = workPart.Expressions.CreateSystemExpression("Width = 100");
+            Sketch.ConstraintGeometry vr2 = new Sketch.ConstraintGeometry();
+            vr2.Geometry = l3;
+            newsketch.CreateVerticalConstraint(vr2);
 
-            //Point3d dim2place = new Point3d(p2.X + 25, p1.Y + (width / 2), 0);
+            Sketch.ConstraintGeometry hr2 = new Sketch.ConstraintGeometry();
+            hr2.Geometry = l4;
+            newsketch.CreateHorizontalConstraint(hr2);
 
+            Expression exp1 = workpart.Expressions.Create("Length1=10");
 
-            //sketch.CreateDimension(Sketch.ConstraintType.HorizontalDim, dimGeo3, dimGeo4, dim2place, expwidth, Sketch.DimensionOption.CreateAsDriving);
+            Sketch.DimensionGeometry Dl1 = new Sketch.DimensionGeometry();
+            Dl1.Geometry = l1;
+            Dl1.AssocType = Sketch.AssocType.StartPoint;
 
-            Sketch.DimensionGeometry dimGeo3 = new Sketch.DimensionGeometry();
-            dimGeo3.Geometry = l1;
+            Sketch.DimensionGeometry Dl2 = new Sketch.DimensionGeometry();
+            Dl2.Geometry = l1;
+            Dl2.AssocType = Sketch.AssocType.EndPoint;
 
-            Sketch.DimensionGeometry dimGeo4 = new Sketch.DimensionGeometry();
-            dimGeo4.Geometry = l3;
+            Point3d dimloc = new Point3d(0, 2.5, 1);
 
-            Expression expAngle = workPart.Expressions.CreateSystemExpression("Angle = 60");
+            newsketch.CreateDimension(Sketch.ConstraintType.VerticalDim, Dl1, Dl2, dimloc, exp1);
 
-            Point3d dim2place = new Point3d(p2.X + 25, p1.Y + (width / 2), 0);
+            newsketch.Deactivate(Sketch.ViewReorient.False, Sketch.UpdateLevel.SketchOnly);
 
-            sketch.CreateDimension(Sketch.ConstraintType.AngularDim, dimGeo3, dimGeo4, dim2place, expAngle, Sketch.DimensionOption.CreateAsDriving);
+            Extrude ext = null;
+            ExtrudeBuilder extbuild = workpart.Features.CreateExtrudeBuilder(ext);
 
+            Curve[] curves = new Curve[4];
+            curves[0] = l1;
+            curves[1] = l2;
+            curves[2] = l3;
+            curves[3] = l4;
 
-            sketch.Deactivate(Sketch.ViewReorient.False, Sketch.UpdateLevel.Model);
+            SelectionIntentRule[] recrulearray = new SelectionIntentRule[1];
+            SelectionIntentRule Selection1 = workpart.ScRuleFactory.CreateRuleCurveDumb(curves);
+            recrulearray[0] = Selection1;
 
+            Section extsection = workpart.Sections.CreateSection();
+            extsection.AddToSection(recrulearray, l1, null, null, new Point3d(0, 0, 0), Section.Mode.Create);
+            extbuild.Section = extsection;
+
+            extbuild.Direction = workpart.Directions.CreateDirection(new Point3d(0, 0, 0), new Vector3d(1, 0, 0), SmartObject.UpdateOption.WithinModeling);
+
+            extbuild.Limits.StartExtend.TrimType = NXOpen.GeometricUtilities.Extend.ExtendType.Value;
+            extbuild.Limits.StartExtend.SetValue("0");
+
+            extbuild.Limits.EndExtend.TrimType = NXOpen.GeometricUtilities.Extend.ExtendType.Value;
+            extbuild.Limits.EndExtend.SetValue("20");
+
+            extbuild.BooleanOperation.Type = NXOpen.GeometricUtilities.BooleanOperation.BooleanType.Create;
+
+            extbuild.Commit();
+            extbuild.Destroy();
 
 
 
