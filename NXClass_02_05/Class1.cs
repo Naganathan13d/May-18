@@ -14,107 +14,58 @@ namespace NXClass_02_05
         public static void Main()
         {
 
-            Session session = Session.GetSession();
-            Part workpart = session.Parts.Work;
-
-            Sketch newsketch = null;
-            SketchInPlaceBuilder skt = workpart.Sketches.CreateSketchInPlaceBuilder2(newsketch);
-            skt.OriginOption = OriginMethod.WorkPartOrigin;
-
-            Point3d plnpt = new Point3d(0, 0, 0);
-            Vector3d plvctr = new Vector3d(1, 0, 0);
-            Plane plane1 = workpart.Planes.CreatePlane(plnpt, plvctr, SmartObject.UpdateOption.WithinModeling);
-            skt.PlaneReference = plane1;
-
-            Point3d axpt = new Point3d(0, 0, 0);
-            Vector3d axvctr = new Vector3d(0, 1, 0);
-            Direction Dir1 = workpart.Directions.CreateDirection(axpt, axvctr, SmartObject.UpdateOption.WithinModeling);
-            skt.AxisReference = Dir1;
+            Session theSession = Session.GetSession();
+            Part workPart = theSession.Parts.Work;
 
 
-            newsketch = (Sketch)skt.Commit();
-            newsketch.SetName("Table1");
-            newsketch.Activate(Sketch.ViewReorient.False);
+            
 
-            Point3d pt1 = new Point3d(0, 0, 0);
-            Point3d pt2 = new Point3d(0, 0, 10);
-            Point3d pt3 = new Point3d(0, 10, 10);
-            Point3d pt4 = new Point3d(0, 10, 0);
+            Body[] bodies = workPart.Bodies.ToArray();
+            Body b1 = bodies[0];
+            Body b2 = bodies[1];
 
-            Line l1 = workpart.Curves.CreateLine(pt1, pt2);
-            Line l2 = workpart.Curves.CreateLine(pt2, pt3);
-            Line l3 = workpart.Curves.CreateLine(pt3, pt4);
-            Line l4 = workpart.Curves.CreateLine(pt4, pt1);
+            TaggedObject[] taggedObject = new TaggedObject[1];
 
-            newsketch.AddGeometry(l1);
-            newsketch.AddGeometry(l2);
-            newsketch.AddGeometry(l3);
-            newsketch.AddGeometry(l4);
+            NXObject nXObject = b2;
 
-            skt.Destroy();
+            taggedObject[0] = nXObject;
 
-            Sketch.ConstraintGeometry vr1 = new Sketch.ConstraintGeometry();
-            vr1.Geometry = l1;
-            newsketch.CreateVerticalConstraint(vr1);
 
-            Sketch.ConstraintGeometry hr1 = new Sketch.ConstraintGeometry();
-            hr1.Geometry = l2;
-            newsketch.CreateHorizontalConstraint(hr1);
+            BooleanFeature booleanFeature = null;
+            BooleanBuilder booleanBuilder = workPart.Features.CreateBooleanBuilder(booleanFeature);
 
-            Sketch.ConstraintGeometry vr2 = new Sketch.ConstraintGeometry();
-            vr2.Geometry = l3;
-            newsketch.CreateVerticalConstraint(vr2);
+            booleanBuilder.Operation = Feature.BooleanType.Unite;
 
-            Sketch.ConstraintGeometry hr2 = new Sketch.ConstraintGeometry();
-            hr2.Geometry = l4;
-            newsketch.CreateHorizontalConstraint(hr2);
+            booleanBuilder.Targets.Add(b1);
 
-            Expression exp1 = workpart.Expressions.Create("Length1=10");
+            //NXOpen.GeometricUtilities.BooleanRegionSelect booleanRegionSelect1;
+            //booleanRegionSelect1 = booleanBuilder.BooleanRegionSelect;
 
-            Sketch.DimensionGeometry Dl1 = new Sketch.DimensionGeometry();
-            Dl1.Geometry = l1;
-            Dl1.AssocType = Sketch.AssocType.StartPoint;
+            //booleanRegionSelect1.AssignTargets(taggedObject);
 
-            Sketch.DimensionGeometry Dl2 = new Sketch.DimensionGeometry();
-            Dl2.Geometry = l1;
-            Dl2.AssocType = Sketch.AssocType.EndPoint;
+            BodyDumbRule bodyDumbRule1 = workPart.ScRuleFactory.CreateRuleBodyDumb(bodies, true);    
 
-            Point3d dimloc = new Point3d(0, 2.5, 1);
+          
 
-            newsketch.CreateDimension(Sketch.ConstraintType.VerticalDim, Dl1, Dl2, dimloc, exp1);
+            SelectionIntentRule[] rules1 = new SelectionIntentRule[1];
 
-            newsketch.Deactivate(Sketch.ViewReorient.False, Sketch.UpdateLevel.SketchOnly);
+            ScCollector scCollector2 = workPart.ScCollectors.CreateCollector();
+            rules1[0] = bodyDumbRule1;
+            scCollector2.ReplaceRules(rules1, false);
 
-            Extrude ext = null;
-            ExtrudeBuilder extbuild = workpart.Features.CreateExtrudeBuilder(ext);
+            booleanBuilder.ToolBodyCollector = scCollector2;
 
-            Curve[] curves = new Curve[4];
-            curves[0] = l1;
-            curves[1] = l2;
-            curves[2] = l3;
-            curves[3] = l4;
 
-            SelectionIntentRule[] recrulearray = new SelectionIntentRule[1];
-            SelectionIntentRule Selection1 = workpart.ScRuleFactory.CreateRuleCurveDumb(curves);
-            recrulearray[0] = Selection1;
+            booleanBuilder.Commit();
+            booleanBuilder.Destroy();
 
-            Section extsection = workpart.Sections.CreateSection();
-            extsection.AddToSection(recrulearray, l1, null, null, new Point3d(0, 0, 0), Section.Mode.Create);
-            extbuild.Section = extsection;
 
-            extbuild.Direction = workpart.Directions.CreateDirection(new Point3d(0, 0, 0), new Vector3d(1, 0, 0), SmartObject.UpdateOption.WithinModeling);
 
-            extbuild.Limits.StartExtend.TrimType = NXOpen.GeometricUtilities.Extend.ExtendType.Value;
-            extbuild.Limits.StartExtend.SetValue("0");
 
-            extbuild.Limits.EndExtend.TrimType = NXOpen.GeometricUtilities.Extend.ExtendType.Value;
-            extbuild.Limits.EndExtend.SetValue("20");
 
-            extbuild.BooleanOperation.Type = NXOpen.GeometricUtilities.BooleanOperation.BooleanType.Create;
 
-            extbuild.Commit();
-            extbuild.Destroy();
 
+            //Guide.CreateSphere(double0, double01, double02, double03);
 
 
 
@@ -122,6 +73,9 @@ namespace NXClass_02_05
 
 
         }
+
+
+
 
 
 
