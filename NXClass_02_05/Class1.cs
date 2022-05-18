@@ -17,18 +17,15 @@ namespace NXClass_02_05
             Session theSession = Session.GetSession();
             Part workPart = theSession.Parts.Work;
 
+            Body[] bodies1 = new Body[2];
+            Body body2 = (Body)workPart.Bodies.FindObject("EXTRUDE(1)");
+            Body body3 = (Body)workPart.Bodies.FindObject("EXTRUDE(3)");
+            bodies1[0] = body2;
+            bodies1[1] = body3;
 
             
-
-            Body[] bodies = workPart.Bodies.ToArray();
-            Body b1 = bodies[0];
-            Body b2 = bodies[1];
-
-            TaggedObject[] taggedObject = new TaggedObject[1];
-
-            NXObject nXObject = b2;
-
-            taggedObject[0] = nXObject;
+            Body b1 = (Body)workPart.Bodies.FindObject("EXTRUDE(2)");
+                  
 
 
             BooleanFeature booleanFeature = null;
@@ -36,16 +33,9 @@ namespace NXClass_02_05
 
             booleanBuilder.Operation = Feature.BooleanType.Unite;
 
-            booleanBuilder.Targets.Add(b1);
+            booleanBuilder.Targets.Add(b1);          
 
-            //NXOpen.GeometricUtilities.BooleanRegionSelect booleanRegionSelect1;
-            //booleanRegionSelect1 = booleanBuilder.BooleanRegionSelect;
-
-            //booleanRegionSelect1.AssignTargets(taggedObject);
-
-            BodyDumbRule bodyDumbRule1 = workPart.ScRuleFactory.CreateRuleBodyDumb(bodies, true);    
-
-          
+            BodyDumbRule bodyDumbRule1 = workPart.ScRuleFactory.CreateRuleBodyDumb(bodies1, true);           
 
             SelectionIntentRule[] rules1 = new SelectionIntentRule[1];
 
